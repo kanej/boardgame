@@ -29,6 +29,35 @@ namespace BoardGame
             this.Mines = mines;
         }
 
+        public static IEnumerable<Tuple<int, int>> GenerateRandomMines(int numberOfMines)
+        {
+            var mines = new List<Tuple<int, int>>();
+            var rand = new Random();
+
+            while(mines.Count() < numberOfMines)
+            {
+                var x = rand.Next(8);
+                var y = rand.Next(8);
+
+                // Ignore start position
+                if(x == 0 && y == 0)
+                {
+                    continue;
+                }
+
+                var p = new Tuple<int, int>(x, y);
+
+                if (mines.Contains(p))
+                {
+                    continue;
+                }
+
+                mines.Add(p);
+            }
+
+            return mines;
+        }
+
         public MoveResult Move(string move)
         {
             if(move == "RIGHT")
