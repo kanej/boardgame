@@ -104,7 +104,7 @@ X0000000";
             var game = new Game();
             var result = game.Move("UNKNOWN");
 
-            Assert.AreEqual("Failure", result.Status);
+            Assert.AreEqual(MoveResult.StatusFailure, result.Status);
             Assert.AreEqual("Unknown Move - UNKNOWN", result.Message);
         }
 
@@ -123,7 +123,7 @@ X0000000";
             game.Move("RIGHT");
             var result = game.Move("RIGHT");
 
-            Assert.AreEqual("Failure", result.Status);
+            Assert.AreEqual(MoveResult.StatusFailure, result.Status);
             Assert.AreEqual("Already on the rightmost column", result.Message);
         }
 
@@ -134,7 +134,7 @@ X0000000";
 
             var result = game.Move("LEFT");
 
-            Assert.AreEqual("Failure", result.Status);
+            Assert.AreEqual(MoveResult.StatusFailure, result.Status);
             Assert.AreEqual("Already on the leftmost column", result.Message);
         }
 
@@ -154,7 +154,7 @@ X0000000";
 
             var result = game.Move("UP");
 
-            Assert.AreEqual("Failure", result.Status);
+            Assert.AreEqual(MoveResult.StatusFailure, result.Status);
             Assert.AreEqual("Already on the top row", result.Message);
         }
 
@@ -165,7 +165,7 @@ X0000000";
 
             var result = game.Move("DOWN");
 
-            Assert.AreEqual("Failure", result.Status);
+            Assert.AreEqual(MoveResult.StatusFailure, result.Status);
             Assert.AreEqual("Already on the bottom row", result.Message);
         }
 
@@ -182,7 +182,7 @@ X0000000";
             game.Move("UP");
             var moveResult = game.Move("UP");
 
-            Assert.AreEqual("Complete", moveResult.Status);
+            Assert.AreEqual(MoveResult.StatusComplete, moveResult.Status);
             Assert.AreEqual(GameStatus.Win, game.Status);
         }
 
@@ -193,7 +193,7 @@ X0000000";
 
             var moveResult = game.Move("RIGHT");
 
-            Assert.AreEqual("Success", moveResult.Status);
+            Assert.AreEqual(MoveResult.StatusSuccess, moveResult.Status);
             Assert.AreEqual(GameStatus.Ongoing, game.Status);
         }
 
@@ -205,7 +205,7 @@ X0000000";
             game.Move("UP");
             var moveResult = game.Move("UP");
 
-            Assert.AreEqual("Complete", moveResult.Status);
+            Assert.AreEqual(MoveResult.StatusComplete, moveResult.Status);
             Assert.AreEqual(GameStatus.Lose, game.Status);
         }
 
@@ -222,7 +222,7 @@ X0000000";
             game.Move("UP");
             var moveResult = game.Move("UP");
 
-            Assert.AreEqual("Complete", moveResult.Status);
+            Assert.AreEqual(MoveResult.StatusComplete, moveResult.Status);
             Assert.AreEqual(GameStatus.Lose, game.Status);
         }
 
