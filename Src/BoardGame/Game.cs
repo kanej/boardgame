@@ -66,29 +66,37 @@ namespace BoardGame
 
             UpdatePosition(move);
 
-            if (this.PreviousPlayerPositions.Intersect(this.Mines).Count() >= 2)
+            this.Status = DetermineGameStatus();
+
+            if (this.Status == GameStatus.Ongoing)
             {
-                this.Status = GameStatus.Lose;
+                return new MoveResult
+                {
+                    Status = MoveResult.StatusSuccess
+                };
+            }
+            else
+            {
                 return new MoveResult
                 {
                     Status = MoveResult.StatusComplete
                 };
+            }
+        }
+
+        private GameStatus DetermineGameStatus()
+        {
+            if (this.PreviousPlayerPositions.Intersect(this.Mines).Count() >= 2)
+            {
+                return GameStatus.Lose;
             }
 
             if (this.PlayerPosition.Item2 == 7)
             {
-                this.Status = GameStatus.Win;
-                return new MoveResult
-                {
-                    Status = MoveResult.StatusComplete
-                };
+                return GameStatus.Win;
             }
 
-            this.Status = GameStatus.Ongoing;
-            return new MoveResult
-            {
-                Status = MoveResult.StatusSuccess
-            };
+            return GameStatus.Ongoing;
         }
 
         private MoveResult ValidMove(string move)
