@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BoardGame
 {
     class Program
     {
+        private static Dictionary<string, string> KeyMap = new Dictionary<string, string>
+        {
+            { "l", "LEFT" },
+            { "r", "RIGHT" },
+            { "u", "UP" },
+            { "d", "DOWN" },
+        };
+
         static void Main(string[] args)
         {
             Console.WriteLine("Welcome to Boardgame!");
-            Console.WriteLine("Enter U,D,L or R to move");
+            Console.WriteLine("Enter U, D, L or R to move");
             Console.WriteLine("");
 
             var mines = Game.GenerateRandomMines(7);
@@ -22,28 +27,16 @@ namespace BoardGame
             {
                 Console.WriteLine(g);
                 Console.WriteLine("Please enter next move:");
-                var entry = Console.ReadLine().ToString().ToLower();
+                var entry = Console.ReadLine().ToString();
 
-                if (entry == "l")
-                {
-                    g.Move("LEFT");
-                }
-                else if(entry == "r")
-                {
-                    g.Move("RIGHT");
-                }
-                else if(entry == "u")
-                {
-                    g.Move("UP");
-                }
-                else if (entry == "d")
-                {
-                    g.Move("DOWN");
-                }
-                else
+                var move = ConvertEntryToMove(entry);
+
+                if(move == null)
                 {
                     continue;
                 }
+
+                g.Move(move);
             }
 
             if(g.Status == GameStatus.Win)
@@ -57,6 +50,19 @@ namespace BoardGame
             Console.WriteLine(g);
             Console.WriteLine("Thank you for playing");
             Console.Read();
+        }
+
+        private static string ConvertEntryToMove(string entry)
+        {
+            var lowerEntry = entry.ToLower();
+
+            if(!KeyMap.ContainsKey(lowerEntry))
+            {
+                return null;
+
+            }
+
+            return KeyMap[lowerEntry];
         }
     }
 }
