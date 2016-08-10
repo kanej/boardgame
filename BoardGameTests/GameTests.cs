@@ -225,5 +225,44 @@ X0000000";
             Assert.AreEqual("Complete", moveResult.Status);
             Assert.AreEqual(GameStatus.Lose, game.Status);
         }
+
+        [TestMethod]
+        public void hitting_a_landmine_shows_an_explosion_symbol()
+        {
+            var game = new Game(new Tuple<int, int>[] { new Tuple<int, int>(0, 1) });
+
+            game.Move("UP");
+
+            var expectedBoard = @"00000000
+00000000
+00000000
+00000000
+00000000
+00000000
+*0000000
+00000000";
+
+            Assert.AreEqual(expectedBoard, game.ToString());
+        }
+
+        [TestMethod]
+        public void previously_hit_mines_are_shown_on_the_board()
+        {
+            var game = new Game(new Tuple<int, int>[] { new Tuple<int, int>(0, 1) });
+
+            game.Move("UP");
+            game.Move("UP");
+
+            var expectedBoard = @"00000000
+00000000
+00000000
+00000000
+00000000
+X0000000
++0000000
+00000000";
+
+            Assert.AreEqual(expectedBoard, game.ToString());
+        }
     }
 }

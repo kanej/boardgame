@@ -11,7 +11,7 @@ namespace BoardGame
         private List<string> Moves { get; set; }
         private Tuple<int, int> PlayerPosition { get; set; }
         private IEnumerable<Tuple<int, int>> Mines { get;  set; }
-        private int MineHits { get; set; }
+        private List<Tuple<int, int>> HitMines { get; set; }
 
         public GameStatus Status { get; private set; }
 
@@ -23,7 +23,7 @@ namespace BoardGame
         {
             this.Status = GameStatus.Ongoing;
             this.Moves = new List<string>();
-            this.MineHits = 0;
+            this.HitMines = new List<Tuple<int, int>>();
             this.PlayerPosition = Tuple.Create(0, 0);
 
             this.Mines = mines;
@@ -96,9 +96,9 @@ namespace BoardGame
 
             if (IsPlayerOnMine())
             {
-                this.MineHits++;
+                this.HitMines.Add(this.PlayerPosition);
 
-                if(this.MineHits >= 2)
+                if(this.HitMines.Count() >= 2)
                 {
                     this.Status = GameStatus.Lose;
                     return new MoveResult
@@ -126,7 +126,21 @@ namespace BoardGame
         public override string ToString()
         {
             var board = new Board(8, 8);
-            board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, 'X');
+
+            foreach(var mine in this.HitMines)
+            { 
+                board.SetMarker(mine.Item1, mine.Item2, '+');
+            }
+
+            if(this.HitMines.Contains(this.PlayerPosition))
+            {
+                board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, '*');
+            }
+            else
+            {
+                board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, 'X');
+            }
+
             return board.ToString();
         }
 
