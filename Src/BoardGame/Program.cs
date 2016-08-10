@@ -19,13 +19,14 @@ namespace BoardGame
             Console.WriteLine("Enter U, D, L or R to move");
             Console.WriteLine("");
 
-            var mines = Game.GenerateRandomMines(7);
             //var mines = new Tuple<int, int>[] { new Tuple<int, int>(0, 1), new Tuple<int, int>(0, 2) };
-            var g = new Game(new MineGameState());
+            var mines = MineGameLogic.GenerateRandomMines(7);
+            
+            var mineGame = new GameRunner(new MineGameLogic(), new MineGameState(mines));
 
-            while(g.Status == GameStatus.Ongoing)
+            while(mineGame.Status == GameStatus.Ongoing)
             {
-                Console.WriteLine(g);
+                Console.WriteLine(mineGame);
                 Console.WriteLine("Please enter next move:");
                 var entry = Console.ReadLine().ToString();
 
@@ -36,10 +37,10 @@ namespace BoardGame
                     continue;
                 }
 
-                g.Move(move);
+                mineGame.Move(move);
             }
 
-            if(g.Status == GameStatus.Win)
+            if(mineGame.Status == GameStatus.Win)
             {
                 Console.WriteLine("!!! You Win !!!");
             } else
@@ -47,7 +48,7 @@ namespace BoardGame
                 Console.WriteLine("--- You Lose ---");
             }
 
-            Console.WriteLine(g);
+            Console.WriteLine(mineGame);
             Console.WriteLine("Thank you for playing");
             Console.Read();
         }

@@ -4,21 +4,8 @@ using System.Linq;
 
 namespace BoardGame
 {
-    public class Game
+    public class MineGameLogic : IGameLogic
     {
-        private GameState State { get; set; }
-
-        public Game(GameState state)
-        {
-            this.State = state;
-        }
-
-        public Game() : this(new MineGameState())
-        {
-        }
-
-        public GameStatus Status {  get { return this.State.Status;  } }
-
         public static IEnumerable<Tuple<int, int>> GenerateRandomMines(int numberOfMines)
         {
             var mines = new List<Tuple<int, int>>();
@@ -48,55 +35,12 @@ namespace BoardGame
             return mines;
         }
 
-        public MoveResult Move(string move)
+        public GameState InitialiseState()
         {
-            var result = ValidMove(this.State, move);
-
-            if(result != null)
-            {
-                return result;
-            }
-
-            UpdatePosition(this.State, move);
-
-            UpdateGameStatus(this.State);
-
-            if (this.State.Status == GameStatus.Ongoing)
-            {
-                return new MoveResult
-                {
-                    Status = MoveResult.StatusSuccess
-                };
-            }
-            else
-            {
-                return new MoveResult
-                {
-                    Status = MoveResult.StatusComplete
-                };
-            }
+            return new MineGameState();
         }
 
-        private void UpdateGameStatus(GameState gameState)
-        {
-            var state = (MineGameState)gameState;
-
-            if (state.PreviousPlayerPositions.Intersect(state.Mines).Count() >= 2)
-            {
-                state.Status = GameStatus.Lose;
-            }
-
-            else if (state.PlayerPosition.Item2 == 7)
-            {
-                state.Status = GameStatus.Win;
-            }
-            else
-            {
-                state.Status = GameStatus.Ongoing;
-            }
-        }
-
-        private MoveResult ValidMove(GameState gameState, string move)
+        public MoveResult ValidateMove(GameState gameState, string move)
         {
             var state = (MineGameState)gameState;
 
@@ -156,7 +100,13 @@ namespace BoardGame
             return null;
         }
 
-        private void UpdatePosition(GameState gameState, string move)
+        public  GameState ApplyMove(GameState gameState, string move)
+        {
+            var updatedPositionState = UpdatePosition(gameState, move);
+            return UpdateGameStatus(updatedPositionState);
+        }
+
+        private static GameState UpdatePosition(GameState gameState, string move)
         {
             var state = (MineGameState)gameState;
 
@@ -178,9 +128,32 @@ namespace BoardGame
             }
 
             state.PreviousPlayerPositions.Add(state.PlayerPosition);
+
+            return state;
         }
 
-        private string PrintBoard(GameState gameState)
+        private static GameState UpdateGameStatus(GameState gameState)
+        {
+            var state = (MineGameState)gameState;
+
+            if (state.PreviousPlayerPositions.Intersect(state.Mines).Count() >= 2)
+            {
+                state.Status = GameStatus.Lose;
+            }
+
+            else if (state.PlayerPosition.Item2 == 7)
+            {
+                state.Status = GameStatus.Win;
+            }
+            else
+            {
+                state.Status = GameStatus.Ongoing;
+            }
+
+            return state;
+        }
+
+        public string BoardToString(GameState gameState)
         {
             var state = (MineGameState)gameState;
 
@@ -206,11 +179,6 @@ namespace BoardGame
             }
 
             return board.ToString();
-        }
-
-        public override string ToString()
-        {
-            return this.PrintBoard(this.State);
         }
     }
 }
