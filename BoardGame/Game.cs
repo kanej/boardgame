@@ -24,18 +24,81 @@ namespace BoardGame
             return board.ToString();
         }
 
-        public void Move(string move)
+        public MoveResult Move(string move)
         {
             if(move == "RIGHT")
             {
+                if (this.PlayerPosition.Item1 == 7)
+                {
+                    return new MoveResult
+                    {
+                        Status = "Failure",
+                        Message = "Already on the rightmost column"
+                    };
+                }
+
                 this.PlayerPosition = Tuple.Create(this.PlayerPosition.Item1 + 1, this.PlayerPosition.Item2);
             }
-            if(move == "UP")
+            else if (move == "LEFT")
             {
+                if (this.PlayerPosition.Item1 == 0)
+                {
+                    return new MoveResult
+                    {
+                        Status = "Failure",
+                        Message = "Already on the leftmost column"
+                    };
+                }
+
+                this.PlayerPosition = Tuple.Create(this.PlayerPosition.Item1 - 1, this.PlayerPosition.Item2);
+            }
+            else if (move == "UP")
+            {
+                if (this.PlayerPosition.Item2 == 7)
+                {
+                    return new MoveResult
+                    {
+                        Status = "Failure",
+                        Message = "Already on the top row"
+                    };
+                }
+
                 this.PlayerPosition = Tuple.Create(this.PlayerPosition.Item1, this.PlayerPosition.Item2 + 1);
+            }
+            else if (move == "DOWN")
+            {
+                if(this.PlayerPosition.Item2 == 0)
+                {
+                    return new MoveResult
+                    {
+                        Status = "Failure",
+                        Message = "Already on the bottom row"
+                    };
+                }
+
+                this.PlayerPosition = Tuple.Create(this.PlayerPosition.Item1, this.PlayerPosition.Item2 - 1);
+            }
+            else
+            {
+                return new MoveResult
+                {
+                    Status = "Failure",
+                    Message = "Unknown Move - " + move
+                };
             }
 
             Moves.Add(move);
+
+            return new MoveResult
+            {
+                Status = "Success"
+            };
+        }
+
+        public class MoveResult
+        {
+            public string Status { get; set; }
+            public string Message { get; set; }
         }
 
         public class Board
