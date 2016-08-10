@@ -6,25 +6,18 @@ namespace BoardGame
 {
     public class Game
     {
-        private Tuple<int, int> PlayerPosition { get; set; }
-        private List<Tuple<int, int>> PreviousPlayerPositions { get; set; }
-        private IEnumerable<Tuple<int, int>> Mines { get; set; }
+        private GameState State { get; set; }
 
-        public GameStatus Status { get; private set; }
+        public Game(GameState state)
+        {
+            this.State = state;
+        }
 
-        public Game() : this(new List<Tuple<int, int>>())
+        public Game() : this(new MineGameState())
         {
         }
 
-        public Game(IEnumerable<Tuple<int, int>> mines)
-        {
-            this.Status = GameStatus.Ongoing;
-            
-            this.PlayerPosition = Tuple.Create(0, 0);
-            this.PreviousPlayerPositions = new List<Tuple<int, int>>() { this.PlayerPosition };
-
-            this.Mines = mines;
-        }
+        public GameStatus Status {  get { return this.State.Status;  } }
 
         public static IEnumerable<Tuple<int, int>> GenerateRandomMines(int numberOfMines)
         {
@@ -57,18 +50,18 @@ namespace BoardGame
 
         public MoveResult Move(string move)
         {
-            var result = ValidMove(move);
+            var result = ValidMove(this.State, move);
 
             if(result != null)
             {
                 return result;
             }
 
-            UpdatePosition(move);
+            UpdatePosition(this.State, move);
 
-            this.Status = DetermineGameStatus();
+            UpdateGameStatus(this.State);
 
-            if (this.Status == GameStatus.Ongoing)
+            if (this.State.Status == GameStatus.Ongoing)
             {
                 return new MoveResult
                 {
@@ -84,26 +77,32 @@ namespace BoardGame
             }
         }
 
-        private GameStatus DetermineGameStatus()
+        private void UpdateGameStatus(GameState gameState)
         {
-            if (this.PreviousPlayerPositions.Intersect(this.Mines).Count() >= 2)
+            var state = (MineGameState)gameState;
+
+            if (state.PreviousPlayerPositions.Intersect(state.Mines).Count() >= 2)
             {
-                return GameStatus.Lose;
+                state.Status = GameStatus.Lose;
             }
 
-            if (this.PlayerPosition.Item2 == 7)
+            else if (state.PlayerPosition.Item2 == 7)
             {
-                return GameStatus.Win;
+                state.Status = GameStatus.Win;
             }
-
-            return GameStatus.Ongoing;
+            else
+            {
+                state.Status = GameStatus.Ongoing;
+            }
         }
 
-        private MoveResult ValidMove(string move)
+        private MoveResult ValidMove(GameState gameState, string move)
         {
+            var state = (MineGameState)gameState;
+
             if (move == "RIGHT")
             {
-                if (this.PlayerPosition.Item1 == 7)
+                if (state.PlayerPosition.Item1 == 7)
                 {
                     return new MoveResult
                     {
@@ -114,7 +113,7 @@ namespace BoardGame
             }
             else if (move == "LEFT")
             {
-                if (this.PlayerPosition.Item1 == 0)
+                if (state.PlayerPosition.Item1 == 0)
                 {
                     return new MoveResult
                     {
@@ -125,7 +124,7 @@ namespace BoardGame
             }
             else if (move == "UP")
             {
-                if (this.PlayerPosition.Item2 == 7)
+                if (state.PlayerPosition.Item2 == 7)
                 {
                     return new MoveResult
                     {
@@ -136,7 +135,7 @@ namespace BoardGame
             }
             else if (move == "DOWN")
             {
-                if (this.PlayerPosition.Item2 == 0)
+                if (state.PlayerPosition.Item2 == 0)
                 {
                     return new MoveResult
                     {
@@ -151,63 +150,67 @@ namespace BoardGame
                 {
                     Status = MoveResult.StatusFailure,
                     Message = "Unknown Move - " + move
-                }; ;
+                };
             }
 
             return null;
         }
 
-        private void UpdatePosition(string move)
+        private void UpdatePosition(GameState gameState, string move)
         {
+            var state = (MineGameState)gameState;
+
             if (move == "RIGHT")
             {
-                this.PlayerPosition = Tuple.Create(this.PlayerPosition.Item1 + 1, this.PlayerPosition.Item2);
+                state.PlayerPosition = Tuple.Create(state.PlayerPosition.Item1 + 1, state.PlayerPosition.Item2);
             }
             else if (move == "LEFT")
             {
-                this.PlayerPosition = Tuple.Create(this.PlayerPosition.Item1 - 1, this.PlayerPosition.Item2);
+                state.PlayerPosition = Tuple.Create(state.PlayerPosition.Item1 - 1, state.PlayerPosition.Item2);
             }
             else if (move == "UP")
             {
-                this.PlayerPosition = Tuple.Create(this.PlayerPosition.Item1, this.PlayerPosition.Item2 + 1);
+                state.PlayerPosition = Tuple.Create(state.PlayerPosition.Item1, state.PlayerPosition.Item2 + 1);
             }
             else if (move == "DOWN")
             {
-                this.PlayerPosition = Tuple.Create(this.PlayerPosition.Item1, this.PlayerPosition.Item2 - 1);
+                state.PlayerPosition = Tuple.Create(state.PlayerPosition.Item1, state.PlayerPosition.Item2 - 1);
             }
 
-            this.PreviousPlayerPositions.Add(this.PlayerPosition);
+            state.PreviousPlayerPositions.Add(state.PlayerPosition);
         }
 
-        public override string ToString()
+        private string PrintBoard(GameState gameState)
         {
+            var state = (MineGameState)gameState;
+
             var board = new Board(8, 8);
 
-            board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, 'X');
+            board.SetMarker(state.PlayerPosition.Item1, state.PlayerPosition.Item2, 'X');
 
-            foreach (var mine in this.Mines)
+            foreach (var mine in state.Mines)
             {
-                if(this.PreviousPlayerPositions.Contains(mine))
+                if (state.PreviousPlayerPositions.Contains(mine))
                 {
                     board.SetMarker(mine.Item1, mine.Item2, '+');
                 }
             }
 
-            if(this.Mines.Contains(this.PlayerPosition))
+            if (state.Mines.Contains(state.PlayerPosition))
             {
-                board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, '*');
+                board.SetMarker(state.PlayerPosition.Item1, state.PlayerPosition.Item2, '*');
             }
             else
             {
-                board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, 'X');
+                board.SetMarker(state.PlayerPosition.Item1, state.PlayerPosition.Item2, 'X');
             }
 
             return board.ToString();
         }
 
-        private bool IsPlayerOnMine()
+        public override string ToString()
         {
-            return this.Mines.Contains(this.PlayerPosition);
+            return this.PrintBoard(this.State);
         }
     }
 }

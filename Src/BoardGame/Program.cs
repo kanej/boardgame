@@ -21,7 +21,7 @@ namespace BoardGame
 
             var mines = Game.GenerateRandomMines(7);
             //var mines = new Tuple<int, int>[] { new Tuple<int, int>(0, 1), new Tuple<int, int>(0, 2) };
-            var g = new Game(mines);
+            var g = new Game(new MineGameState());
 
             while(g.Status == GameStatus.Ongoing)
             {

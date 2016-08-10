@@ -46,7 +46,9 @@
     <Compile Include="Board.cs" />
     <Compile Include="FunctionalExtensions.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="GameState.cs" />
     <Compile Include="GameStatus.cs" />
+    <Compile Include="MineGameState.cs" />
     <Compile Include="MoveResult.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
