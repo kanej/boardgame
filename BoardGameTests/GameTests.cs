@@ -185,5 +185,45 @@ X0000000";
             Assert.AreEqual("Complete", moveResult.Status);
             Assert.AreEqual(GameStatus.Win, game.Status);
         }
+
+        [TestMethod]
+        public void hitting_one_mine_means_the_game_is_ongoing()
+        {
+            var game = new Game(new Tuple<int, int>[] { new Tuple<int, int>(0, 1) });
+
+            var moveResult = game.Move("RIGHT");
+
+            Assert.AreEqual("Success", moveResult.Status);
+            Assert.AreEqual(GameStatus.Ongoing, game.Status);
+        }
+
+        [TestMethod]
+        public void hitting_two_mine_means_the_game_is_over()
+        {
+            var game = new Game(new Tuple<int, int>[] { new Tuple<int, int>(0, 1), new Tuple<int, int>(0, 2) });
+
+            game.Move("UP");
+            var moveResult = game.Move("UP");
+
+            Assert.AreEqual("Complete", moveResult.Status);
+            Assert.AreEqual(GameStatus.Lose, game.Status);
+        }
+
+        [TestMethod]
+        public void hitting_the_second_mine_on_the_last_row_is_still_a_lose()
+        {
+            var game = new Game(new Tuple<int, int>[] { new Tuple<int, int>(0, 6), new Tuple<int, int>(0, 7) });
+
+            game.Move("UP");
+            game.Move("UP");
+            game.Move("UP");
+            game.Move("UP");
+            game.Move("UP");
+            game.Move("UP");
+            var moveResult = game.Move("UP");
+
+            Assert.AreEqual("Complete", moveResult.Status);
+            Assert.AreEqual(GameStatus.Lose, game.Status);
+        }
     }
 }

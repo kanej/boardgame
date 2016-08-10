@@ -10,15 +10,24 @@ namespace BoardGame
     {
         private List<string> Moves { get; set; }
         private Tuple<int, int> PlayerPosition { get; set; }
+        private IEnumerable<Tuple<int, int>> Mines { get;  set; }
+        private int MineHits { get; set; }
 
-        public Game()
+        public GameStatus Status { get; private set; }
+
+        public Game() : this(new List<Tuple<int, int>>())
+        {
+        }
+
+        public Game(IEnumerable<Tuple<int, int>> mines)
         {
             this.Status = GameStatus.Ongoing;
             this.Moves = new List<string>();
+            this.MineHits = 0;
             this.PlayerPosition = Tuple.Create(0, 0);
-        }
 
-        public GameStatus Status { get; private set; }
+            this.Mines = mines;
+        }
 
         public MoveResult Move(string move)
         {
@@ -85,7 +94,21 @@ namespace BoardGame
 
             Moves.Add(move);
 
-            if(this.PlayerPosition.Item2 == 7)
+            if (IsPlayerOnMine())
+            {
+                this.MineHits++;
+
+                if(this.MineHits >= 2)
+                {
+                    this.Status = GameStatus.Lose;
+                    return new MoveResult
+                    {
+                        Status = "Complete"
+                    };
+                }
+            }
+
+            if (this.PlayerPosition.Item2 == 7)
             {
                 this.Status = GameStatus.Win;
                 return new MoveResult
@@ -105,6 +128,11 @@ namespace BoardGame
             var board = new Board(8, 8);
             board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, 'X');
             return board.ToString();
+        }
+
+        private bool IsPlayerOnMine()
+        {
+            return this.Mines.Contains(this.PlayerPosition);
         }
 
         public class MoveResult
@@ -165,8 +193,8 @@ public static class FunctionalExtensions {
         public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> l, int sizeOfSubsequences)
         {
             return l.Select((x, i) => new { Group = i / sizeOfSubsequences, Value = x })
-                     .GroupBy(item => item.Group, g => g.Value)
-                     .Select(g => g.Where(x => true));
+                .GroupBy(item => item.Group, g => g.Value)
+                .Select(g => g.Where(x => true));
         }
     }
 }
