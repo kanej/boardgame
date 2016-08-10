@@ -168,5 +168,22 @@ X0000000";
             Assert.AreEqual("Failure", result.Status);
             Assert.AreEqual("Already on the bottom row", result.Message);
         }
+
+        [TestMethod]
+        public void reaching_the_top_row_wins_the_game()
+        {
+            var game = new Game();
+
+            game.Move("UP");
+            game.Move("UP");
+            game.Move("UP");
+            game.Move("UP");
+            game.Move("UP");
+            game.Move("UP");
+            var moveResult = game.Move("UP");
+
+            Assert.AreEqual("Complete", moveResult.Status);
+            Assert.AreEqual(GameStatus.Win, game.Status);
+        }
     }
 }

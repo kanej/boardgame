@@ -13,16 +13,12 @@ namespace BoardGame
 
         public Game()
         {
+            this.Status = GameStatus.Ongoing;
             this.Moves = new List<string>();
             this.PlayerPosition = Tuple.Create(0, 0);
         }
 
-        public override string ToString()
-        {
-            var board = new Board(8, 8);
-            board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, 'X');
-            return board.ToString();
-        }
+        public GameStatus Status { get; private set; }
 
         public MoveResult Move(string move)
         {
@@ -89,10 +85,26 @@ namespace BoardGame
 
             Moves.Add(move);
 
+            if(this.PlayerPosition.Item2 == 7)
+            {
+                this.Status = GameStatus.Win;
+                return new MoveResult
+                {
+                    Status = "Complete"
+                };
+            }
+
             return new MoveResult
             {
                 Status = "Success"
             };
+        }
+
+        public override string ToString()
+        {
+            var board = new Board(8, 8);
+            board.SetMarker(this.PlayerPosition.Item1, this.PlayerPosition.Item2, 'X');
+            return board.ToString();
         }
 
         public class MoveResult
@@ -135,9 +147,20 @@ namespace BoardGame
                 return string.Join("\r\n", combinedRows);
             }
         }
+
+
     }
 
-    public static class FunctionalExtensions {
+public class GameStatus
+{
+    public static GameStatus Win = new GameStatus { Status = "WIN" };
+    public static GameStatus Lose = new GameStatus { Status = "LOSE" };
+    public static GameStatus Ongoing = new GameStatus { Status = "ONGOING" };
+
+    private string Status { get; set; }
+}
+
+public static class FunctionalExtensions {
 
         public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> l, int sizeOfSubsequences)
         {
